@@ -1,0 +1,23 @@
+parser.cmi: term.cmo
+error.cmo:
+error.cmx:
+lexer.cmo: parser.cmi error.cmo
+lexer.cmx: parser.cmx error.cmx
+main.cmo: module.cmo error.cmo
+main.cmx: module.cmx error.cmx
+module.cmo: type.cmo term.cmo scope.cmo rule.cmo parser.cmi lexer.cmo \
+    error.cmo
+module.cmx: type.cmx term.cmx scope.cmx rule.cmx parser.cmx lexer.cmx \
+    error.cmx
+parser.cmo: term.cmo error.cmo parser.cmi
+parser.cmx: term.cmx error.cmx parser.cmi
+printer.cmo: term.cmo scope.cmo
+printer.cmx: term.cmx scope.cmx
+rule.cmo: term.cmo printer.cmo error.cmo
+rule.cmx: term.cmx printer.cmx error.cmx
+scope.cmo: term.cmo error.cmo
+scope.cmx: term.cmx error.cmx
+term.cmo: error.cmo
+term.cmx: error.cmx
+type.cmo: term.cmo rule.cmo printer.cmo error.cmo
+type.cmx: term.cmx rule.cmx printer.cmx error.cmx
