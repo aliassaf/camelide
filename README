@@ -16,6 +16,9 @@ Usage: ./camelide <options> <file>
   -help      Display this list of options
   --help     Display this list of options
 
+It is recommended to use option -v 1 or -v 2 on large files to follow the
+progress of the type checking.
+
 For more information on Dedukti, visit:
 http://www.lix.polytechnique.fr/dedukti/
 
