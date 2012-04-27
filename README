@@ -8,12 +8,13 @@ The source code is available on GitHub at:
 https://github.com/aliassaf/camelide
 
 You need OCaml to compile it. It was tested with OCaml 3.12.0, but previous
-versions should probably work too. To compile, simple run make in the source
+versions should work just as well. To compile, simply run make in the source
 directory. It will produce an executable named 'camelide'.
 
-  ./camelide --help
-
-for a usage description.
+Usage: ./camelide <options> <file>
+  -v <level> Set verbosity level
+  -help      Display this list of options
+  --help     Display this list of options
 
 For more information on Dedukti, visit:
 http://www.lix.polytechnique.fr/dedukti/
