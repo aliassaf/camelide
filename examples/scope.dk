@@ -1,0 +1,7 @@
+A : Type.
+B : Type.
+x : B.
+
+id : A -> A.
+
+[x : A] id x --> x.
