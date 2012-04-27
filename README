@@ -1,0 +1,22 @@
+                               ===============
+                               C A M E L I D E
+                               ===============
+
+Camelide is an interpreter for Dedukti, written for OCaml.
+
+The source code is available on GitHub at:
+https://github.com/aliassaf/camelide
+
+You need OCaml to compile it. It was tested with OCaml 3.12.0, but previous
+versions should probably work too. To compile, simple run make in the source
+directory. It will produce an executable named 'camelide'.
+
+  ./camelide --help
+
+for a usage description.
+
+For more information on Dedukti, visit:
+http://www.lix.polytechnique.fr/dedukti/
+
+For feedback or bug reports, please visit the GitHub page, or send an email to:
+ali.assaf@inria.fr
