@@ -70,12 +70,12 @@ let subst theta term =
     | App(t1, t2) ->
         new_term (App(subst theta t1, subst theta t2))
     | Lam(x, a, t) ->
-        let x', theta' = rebind x term theta in
+        let x', theta' = rename x term theta in
         new_term (Lam(x', subst theta a, subst theta' t))
     | Pi (x, a, b) ->
-        let x', theta' = rebind x term theta in
+        let x', theta' = rename x term theta in
         new_term (Pi (x', subst theta a, subst theta' b))
-  and rebind x term theta = (* Rebind to avoid capture. *)
+  and rename x term theta = (* Rename to avoid capture. *)
     let fv = free_vars_terms (term :: (snd (List.split theta))) in
     let x' = variant x fv in
     x', (x, new_term (Var(x'))) :: theta in

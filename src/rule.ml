@@ -51,7 +51,7 @@ let match_some_rule head spine =
   match_some_rule (List.rev (Hashtbl.find_all rules head))
 
 (* Evaluation functions. Fully normalize term using beta-reduction and the
-   stored reduction rules. Evaluation is call-by-value, left-to-right. *)
+   stored reduction rules. Evaluation is call-by-value, right-to-left. *)
 let rec reduce term spine =
   match term.body with
   | Type | Kind -> assert (List.length spine = 0); term, spine
