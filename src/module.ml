@@ -13,9 +13,11 @@ let current_module () = List.hd !loading_modules
 (* Create a lexer buffer from the given filename and register the filename in
    the lexbuf to obtain useful error messages. *)
 let create_lexbuf filename =
+  let filename =
+    if filename = "-" then filename else
+    Filename.concat !path (filename ^ ".dk") in
   let in_channel =
     if filename = "-" then stdin else
-    let filename = Filename.concat !path (filename ^ ".dk") in
     try open_in filename 
     with Sys_error(msg) -> Error.module_error "Cannot open file %s" msg in
   let lexbuf = Lexing.from_channel in_channel in
