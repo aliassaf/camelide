@@ -10,12 +10,15 @@ let loaded_modules = ref []
 
 let current_module () = List.hd !loading_modules
 
-(* Register the filename in the lexbuf to obtain useful error messages. *)
-let setup_lexbuf filename =
-  let out_channel =
+(* Create a lexer buffer from the given filename and register the filename in
+   the lexbuf to obtain useful error messages. *)
+let create_lexbuf filename =
+  let in_channel =
+    if filename = "-" then stdin else
+    let filename = Filename.concat !path (filename ^ ".dk") in
     try open_in filename 
     with Sys_error(msg) -> Error.module_error "Cannot open file %s" msg in
-  let lexbuf = Lexing.from_channel out_channel in
+  let lexbuf = Lexing.from_channel in_channel in
   lexbuf.Lexing.lex_curr_p <-
     { lexbuf.Lexing.lex_curr_p
       with Lexing.pos_fname = filename };
@@ -71,8 +74,7 @@ and load_module name =
     Error.print_verbose 1 "Loading module %s..." name;
     loading_modules := name :: !loading_modules;
     Scope.push_scope name;
-    let filename = Filename.concat !path (name ^ ".dk") in
-    let lexbuf = setup_lexbuf filename in
+    let lexbuf = create_lexbuf name in
     process_instructions lexbuf;
     Scope.pop_scope ();
     loading_modules := List.tl !loading_modules;
@@ -83,8 +85,12 @@ and load_module name =
 let load_file filename =
   if Filename.check_suffix filename ".dk" then () else
   Error.module_error "Invalid file extension %s" filename;
-  path := Filename.dirname filename;
   let module_name = Filename.chop_extension (Filename.basename filename) in
+  path := Filename.dirname filename;
   load_module module_name;
   Error.print_verbose 0 "OK!"
 
+let load_stdin () =
+  path := ".";
+  load_module "-";
+  Error.print_verbose 0 "OK!"

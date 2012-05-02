@@ -1,11 +1,20 @@
 (* Parse the command line arguments and execute the given file. *)
 
-let filename = ref ""
+type input_type =
+  | File of string
+  | Stdin
+  | Nothing
+
+let input = ref Nothing
 
 let set_filename name =
-  filename := name
+  input := File(name)
+
+let set_stdin () =
+  input := Stdin
 
 let options = Arg.align [
+  "--stdin", Arg.Unit(set_stdin), " Read from stdin instead of a file";
   "-v", Arg.Set_int(Error.verbose_level), "<level> Set verbosity level" ]
 
 let usage =
@@ -13,6 +22,7 @@ let usage =
 
 let () =
   Arg.parse options set_filename usage;
-  match !filename with
-  | "" -> Arg.usage options usage; exit 1
-  | filename -> Module.load_file filename
+  match !input with
+  | File(filename) -> Module.load_file filename
+  | Stdin -> Module.load_stdin ()
+  | Nothing -> Arg.usage options usage; exit 1
