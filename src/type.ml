@@ -44,9 +44,11 @@ let check_sort env term =
   let s = normalize (type_of env term) in
   match s.body with
   | Type | Kind -> ()
-  | _ -> Error.type_error term.pos "This term has an incorrect sort %a " print_term s
+  | _ -> Error.type_error term.pos "This term has an invalid sort %a " print_term s
 
-let check_declaration x a =
+let check_declaration pos x a =
+  if is_declared (Scope.qualify x)
+    then Error.type_error pos "Declaration %s is already defined" x else
   check_sort [] a
 
 (* Check that the environment env is well-formed. The order of the environment
@@ -84,7 +86,7 @@ let check_rule_fv left right =
   if (List.for_all (fun x -> List.mem x fvl) fvr) then () else
   Error.pattern_error right.pos "All the free variables must appear on the left side of the rule"
 
-let check_rule env left right =
+let check_rule pos env left right =
   check_head left env;
   check_rule_fv left right;
   let env = check_env env in (* Reverses the order of env. *)

@@ -40,30 +40,30 @@ let rec load_dependencies term =
 and load_dependencies_terms terms =
   List.iter load_dependencies terms
 
-and process_declaration x a =
+and process_declaration pos x a =
   load_dependencies a;
   Error.print_verbose 2 "Checking declaration %s..." x;
   let a = Scope.qualify_term a [] in
-  check_declaration x a;
+  check_declaration pos x a;
   Hashtbl.add declarations (Scope.qualify x) a
 
-and process_rule env left right =
+and process_rule pos env left right =
   load_dependencies_terms (left :: right :: (snd (List.split env)));
   let head, _ = extract_spine left in (* To get the name of the rule *)
   Error.print_verbose 2 "Checking rule for %s..." head;
   let env, left, right = Scope.qualify_rule env left right in
-  check_rule env left right;
+  check_rule pos env left right;
   let _, spine = extract_spine left in (* To get the qualified spine *)
   Hashtbl.add rules (Scope.qualify head) (fst (List.split env), spine, right)
 
 and process_instructions lexbuf =
   let instruction = Parser.toplevel Lexer.token lexbuf in
   match instruction with
-    | Declaration(x, a) ->
-        process_declaration x a;
+    | Declaration(pos, x, a) ->
+        process_declaration pos x a;
         process_instructions lexbuf
-    | Rule(env, left, right) ->
-        process_rule env left right;
+    | Rule(pos, env, left, right) ->
+        process_rule pos env left right;
         process_instructions lexbuf
     | Eof -> ()
 

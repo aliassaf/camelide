@@ -24,10 +24,10 @@ toplevel:
   | error { Error.syntax_error (pos ()) "Invalid expression" }
 
 declaration:
-  | binding DOT { let x, a = $1 in Declaration(x, a) }
+  | binding DOT { let x, a = $1 in Declaration(pos (), x, a) }
 
 rule:
-  | env pattern LONG_ARROW term DOT { Rule($1, $2, $4) }
+  | env pattern LONG_ARROW term DOT { Rule(pos (), $1, $2, $4) }
 
 binding:
   | ID COLON term { ($1, $3) }

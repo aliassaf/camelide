@@ -19,5 +19,5 @@ scope.cmo: term.cmo error.cmo
 scope.cmx: term.cmx error.cmx
 term.cmo: error.cmo
 term.cmx: error.cmx
-type.cmo: term.cmo rule.cmo printer.cmo error.cmo
-type.cmx: term.cmx rule.cmx printer.cmx error.cmx
+type.cmo: term.cmo scope.cmo rule.cmo printer.cmo error.cmo
+type.cmx: term.cmx scope.cmx rule.cmx printer.cmx error.cmx

@@ -12,8 +12,8 @@ and body =
   | Pi  of string * term * term
 
 type instruction =
-  | Declaration of string * term
-  | Rule of (string * term) list * term * term
+  | Declaration of Error.pos * string * term
+  | Rule of Error.pos * (string * term) list * term * term
   | Eof
 
 (* Terms that are created outside of parsing have a dummy position. *)
