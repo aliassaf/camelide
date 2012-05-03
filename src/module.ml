@@ -10,6 +10,8 @@ let loaded_modules = ref []
 
 let current_module () = List.hd !loading_modules
 
+let check_dependencies = ref true
+
 (* Create a lexer buffer from the given filename and register the filename in
    the lexbuf to obtain useful error messages. *)
 let create_lexbuf filename =
@@ -44,6 +46,7 @@ and process_declaration pos x a =
   load_dependencies a;
   Error.print_verbose 2 "Checking declaration %s..." x;
   let a = Scope.qualify_term a [] in
+  if not !check_dependencies && List.length !loading_modules > 1 then () else
   check_declaration pos x a;
   Hashtbl.add declarations (Scope.qualify x) a
 
@@ -52,6 +55,7 @@ and process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
   Error.print_verbose 2 "Checking rule for %s..." head;
   let env, left, right = Scope.qualify_rule env left right in
+  if not !check_dependencies && List.length !loading_modules > 1 then () else
   check_rule pos env left right;
   let _, spine = extract_spine left in (* To get the qualified spine *)
   Hashtbl.add rules (Scope.qualify head) (fst (List.split env), spine, right)

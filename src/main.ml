@@ -14,6 +14,7 @@ let set_stdin () =
   input := Stdin
 
 let options = Arg.align [
+  "--nocheck", Arg.Clear(Module.check_dependencies), " Do not type-check dependencies (unsound)";
   "--stdin", Arg.Unit(set_stdin), " Read from stdin instead of a file";
   "-v", Arg.Set_int(Error.verbose_level), "<level> Set verbosity level" ]
 
