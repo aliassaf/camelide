@@ -7,12 +7,14 @@ let use_coc = ref false
 let product_rule s1 s2 pos =
   let s1 = normalize s1 in
   let s2 = normalize s2 in
-  match s1.body, s2.body with
-  | Type, Type -> new_term Type
-  | Type, Kind -> new_term Kind
-  | Kind, Type when !use_coc -> new_term Type
-  | Kind, Kind when !use_coc -> new_term Kind
-  | _ -> Error.type_error pos "This sort of product is not allowed (%a, %a)" print_term s1 print_term s2
+  let s3 =
+    match s1.body, s2.body with
+    | Type, Type -> Type
+    | Type, Kind -> Kind
+    | Kind, Type when !use_coc -> Type
+    | Kind, Kind when !use_coc -> Kind
+    | _ -> Error.type_error pos "This sort of product is not allowed (%a, %a)" print_term s1 print_term s2 in
+  new_term s3
 
 (* The type-checking/type-inference algorithm of lambda-Pi-modulo. *)
 let rec type_of env term =

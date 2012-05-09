@@ -7,13 +7,13 @@ OBJS = error.cmo term.cmo scope.cmo printer.cmo rule.cmo type.cmo parser.cmo \
        lexer.cmo module.cmo main.cmo
 
 camelide: $(OBJS)
-	ocamlcp -o camelide $(OBJS)
+	ocamlc -o camelide $(OBJS)
 	
 %.cmo: %.ml
-	ocamlcp -c $*.ml
+	ocamlc -c $*.ml
 
 %.cmi: %.mli
-	ocamlcp -c $*.mli
+	ocamlc -c $*.mli
 
 %.cmx: %.ml
 	ocamlopt -c $*.ml
