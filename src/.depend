@@ -3,8 +3,8 @@ error.cmo:
 error.cmx:
 lexer.cmo: parser.cmi error.cmo
 lexer.cmx: parser.cmx error.cmx
-main.cmo: module.cmo error.cmo
-main.cmx: module.cmx error.cmx
+main.cmo: type.cmo module.cmo error.cmo
+main.cmx: type.cmx module.cmx error.cmx
 module.cmo: type.cmo term.cmo scope.cmo rule.cmo parser.cmi lexer.cmo \
     error.cmo
 module.cmx: type.cmx term.cmx scope.cmx rule.cmx parser.cmx lexer.cmx \

@@ -54,8 +54,11 @@ let free_vars_terms terms = List.fold_left free_vars_acc [] terms
 
 (* Return a variant of the variable x which does not appear in the list of
    variables avoid. Useful to avoid capture. *)
-let rec variant x avoid =
-  if not (List.mem x avoid) then x else variant (x ^ "'") avoid
+let variant x avoid =
+  let rec variant n =
+    let x' = (x ^ string_of_int n) in
+    if List.mem x' avoid then variant (n + 1) else x' in
+  if x = "" then x else variant 1
 
 (* Capture-avoiding parallel substitution. Subtitutions are give as a list
    [x1, u1; ...; xn, un]. *)
