@@ -48,7 +48,7 @@ and process_declaration pos x a =
   let a = Scope.qualify_term a [] in
   if not !check_dependencies && List.length !loading_modules > 1 then () else
   check_declaration pos x a;
-  Hashtbl.add declarations (Scope.qualify x) a
+  Hashtbl.add declarations (Scope.qualify x) (normalize a)
 
 and process_rule pos env left right =
   load_dependencies_terms (left :: right :: (snd (List.split env)));
@@ -88,11 +88,11 @@ and load_module name =
     Error.print_verbose 1 "Finished loading %s!" name
   end
 
-let load_file filename =
+let load_file filename =  
+  path := Filename.dirname filename;
   if Filename.check_suffix filename ".dk" then () else
   Error.module_error "Invalid file extension %s" filename;
   let module_name = Filename.chop_extension (Filename.basename filename) in
-  path := Filename.dirname filename;
   load_module module_name;
   Error.print_verbose 0 "OK!"
 

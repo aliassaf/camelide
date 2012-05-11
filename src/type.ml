@@ -89,8 +89,10 @@ let check_head term env =
 let check_rule_fv left right =
   let fvl = free_vars left in
   let fvr = free_vars right in
-  if (List.for_all (fun x -> List.mem x fvl) fvr) then () else
-  Error.pattern_error right.pos "All the free variables must appear on the left side of the rule"
+  try
+    let x = List.find (fun x -> not (List.mem x fvl)) fvr in
+    Error.pattern_error right.pos "The free variables %s must appear on the left side of the rule" x
+  with Not_found -> ()
 
 let check_rule pos env left right =
   check_head left env;

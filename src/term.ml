@@ -58,7 +58,7 @@ let variant x avoid =
   let rec variant n =
     let x' = (x ^ string_of_int n) in
     if List.mem x' avoid then variant (n + 1) else x' in
-  if x = "" then x else variant 1
+  if x = "" then x else variant 0
 
 (* Capture-avoiding parallel substitution. Subtitutions are give as a list
    [x1, u1; ...; xn, un]. *)

@@ -32,10 +32,13 @@ let rec qualify_term term bound =
     | Type -> Type
     | Kind -> Kind
     | Var(x) ->
-        if is_qualified x || List.mem x bound then Var(x) else
+        if List.mem x bound then Var(x) else
+        if is_qualified x then
+          if is_declared x then Var(x) else
+          Error.scope_error term.pos "undeclared variable %s" x else
         let qx = qualify x in
         if is_declared qx then Var(qx) else
-        Error.scope_error term.pos "Unbound variable %s" x
+        Error.scope_error term.pos "unbound variable %s" x
     | App(t1, t2) -> App(qualify_term t1 bound, qualify_term t2 bound)
     | Lam(x, a, t) -> Lam(x, qualify_term a bound, qualify_term t (x :: bound))
     | Pi (x, a, b) -> Pi (x, qualify_term a bound, qualify_term b (x :: bound))
