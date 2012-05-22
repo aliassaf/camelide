@@ -29,8 +29,7 @@ let match_spine env head pattern spine =
     | _ -> assert false in (* Invalid pattern, eliminated at parse time. *)
   let rec match_spine pattern spine theta =
     match pattern, spine with
-    | [], _ -> 
-        Error.print_verbose 3 "Matched rule for %a" print_term (app_spine head spine);
+    | [], _ ->
         theta, spine
     | _, [] -> raise MatchFailure
     | t1 :: pattern, t2 :: spine ->
@@ -45,6 +44,7 @@ let match_some_rule head spine =
     | (env, left, right) :: rules ->
         begin try
           let theta, spine = match_spine env head left spine in
+          Error.print_verbose 3 "Matched rule for %a" print_term (app_spine head left);
           Some(right, theta, spine)
         with MatchFailure -> match_some_rule rules end in
   (* Reverse the order of the list to get the good order. *)
