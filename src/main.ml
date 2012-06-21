@@ -1,30 +1,28 @@
 (* Parse the command line arguments and execute the given file. *)
 
-type input_type =
-  | File of string
-  | Stdin
-  | Nothing
+let files = ref []
 
-let input = ref Nothing
+let from_stdin = ref false
 
-let set_filename name =
-  input := File(name)
+let add_file filename =
+  files := filename :: !files
 
-let set_stdin () =
-  input := Stdin
+let usage =
+  Printf.sprintf "Usage:  %s <options> <files>\n" Sys.argv.(0)
 
 let options = Arg.align [
   "--coc", Arg.Set(Type.use_coc), " Use the full Calculus of Construction modulo (experimental)";
   "--nocheck", Arg.Clear(Module.check_dependencies), " Do not type-check dependencies (unsound)";
-  "--stdin", Arg.Unit(set_stdin), " Read from stdin instead of a file";
+  "--stdin", Arg.Set(from_stdin), " Read from stdin instead of a file";
   "-v", Arg.Set_int(Error.verbose_level), "<level> Set verbosity level" ]
 
-let usage =
-  Printf.sprintf "Usage: %s <options> <file>" Sys.argv.(0)
+let argument_error () =
+  Arg.usage options usage;
+  exit 1
 
 let () =
-  Arg.parse options set_filename usage;
-  match !input with
-  | File(filename) -> Module.load_file filename
-  | Stdin -> Module.load_stdin ()
-  | Nothing -> Arg.usage options usage; exit 1
+  Sys.catch_break true;
+  Arg.parse options add_file usage;
+  if not !from_stdin && !files = [] then argument_error() else
+  if !from_stdin then Module.load_stdin () else
+  List.iter Module.load_file (List.rev !files)
