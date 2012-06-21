@@ -1,0 +1,25 @@
+src/error.cmo:
+src/error.cmx:
+src/lexer.cmo: src/parser.cmi src/error.cmo
+src/lexer.cmx: src/parser.cmx src/error.cmx
+src/main.cmo: src/type.cmo src/module.cmo src/error.cmo
+src/main.cmx: src/type.cmx src/module.cmx src/error.cmx
+src/module.cmo: src/type.cmo src/term.cmo src/scope.cmo src/rule.cmo \
+    src/parser.cmi src/lexer.cmo src/error.cmo
+src/module.cmx: src/type.cmx src/term.cmx src/scope.cmx src/rule.cmx \
+    src/parser.cmx src/lexer.cmx src/error.cmx
+src/parser.cmo: src/term.cmo src/error.cmo src/parser.cmi
+src/parser.cmx: src/term.cmx src/error.cmx src/parser.cmi
+src/printer.cmo: src/term.cmo src/scope.cmo
+src/printer.cmx: src/term.cmx src/scope.cmx
+src/rule.cmo: src/term.cmo src/printer.cmo src/error.cmo
+src/rule.cmx: src/term.cmx src/printer.cmx src/error.cmx
+src/scope.cmo: src/term.cmo src/error.cmo
+src/scope.cmx: src/term.cmx src/error.cmx
+src/term.cmo: src/error.cmo
+src/term.cmx: src/error.cmx
+src/type.cmo: src/term.cmo src/scope.cmo src/rule.cmo src/printer.cmo \
+    src/error.cmo
+src/type.cmx: src/term.cmx src/scope.cmx src/rule.cmx src/printer.cmx \
+    src/error.cmx
+src/parser.cmi: src/term.cmo
