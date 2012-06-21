@@ -7,19 +7,17 @@ let use_coc = ref false
 let product_rule s1 s2 pos =
   let s1 = normalize s1 in
   let s2 = normalize s2 in
-  let s3 =
-    match s1.body, s2.body with
-    | Type, Type -> Type
-    | Type, Kind -> Kind
-    | Kind, Type when !use_coc -> Type
-    | Kind, Kind when !use_coc -> Kind
-    | _ -> Error.type_error pos "This sort of product is not allowed (%a, %a)" print_term s1 print_term s2 in
-  new_term s3
+  match s1.body, s2.body with
+  | Type, Type -> s2
+  | Type, Kind -> s2
+  | Kind, Type when !use_coc -> s2
+  | Kind, Kind when !use_coc -> s2
+  | _ -> Error.type_error pos "This sort of product is not allowed (%a, %a)" print_term s1 print_term s2
 
 (* The type-checking/type-inference algorithm of lambda-Pi-modulo. *)
 let rec type_of env term =
   match term.body with
-  | Type -> new_term Kind
+  | Type -> term_kind
   | Kind -> Error.type_error term.pos "Cannot type Kind"
   | Var(x) ->
       begin try List.assoc x env with Not_found ->
@@ -28,8 +26,8 @@ let rec type_of env term =
   | App(t1, t2) ->
       let a1 = normalize (type_of env t1) in
       begin match a1.body with
-      | Pi(x, a, b) -> check_type env t2 a; subst [x, t2] b
-      | _ -> Error.type_error term.pos "This term has type\n %a\nbut a product type was expected" print_term a1 end
+      | Pi(x, a, b) -> check_type env t2 a; if x = "" then b else subst [x, t2] b
+      | _ -> Error.type_error t1.pos "This term has type\n %a\nbut a product type was expected" print_term a1 end
   | Lam(x, a, t) ->
       let s1 = type_of env a in
       let b  = type_of ((x, a) :: env) t in

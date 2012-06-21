@@ -101,3 +101,6 @@ let alpha_equiv t u =
     | _ -> false in
   alpha_equiv t u []
 
+let term_type = new_term Type
+
+let term_kind = new_term Kind
