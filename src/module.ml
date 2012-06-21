@@ -48,7 +48,7 @@ and process_declaration pos x a =
   let a = Scope.qualify_term a [] in
   if not !check_dependencies && List.length !loading_modules > 1 then () else
   check_declaration pos x a;
-  Hashtbl.add declarations (Scope.qualify x) (normalize a)
+  Hashtbl.add declarations (Scope.qualify x) (a)
 
 and process_rule pos env left right =
   load_dependencies_terms (left :: right :: (snd (List.split env)));
