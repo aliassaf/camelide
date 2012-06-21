@@ -44,7 +44,7 @@ let match_some_rule head spine =
     | (env, left, right) :: rules ->
         begin try
           let theta, spine = match_spine env head left spine in
-          Error.print_verbose 3 "Matched rule for %a" print_term (app_spine head left);
+          Error.print_verbose 3 "Matched rule %a --> %a" print_term (app_spine head left) print_term right;
           Some(right, theta, spine)
         with MatchFailure -> match_some_rule rules end in
   (* Reverse the order of the list to get the good order. *)
