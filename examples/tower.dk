@@ -1,0 +1,8 @@
+A0 : Type.
+A1 : x0 : A0 -> Type.
+A2 : x0 : A0 -> x1 : A1 x0 -> Type.
+A3 : x0 : A0 -> x1 : A1 x0 -> x2 : A2 x0 x1 -> Type.
+A4 : x0 : A0 -> x1 : A1 x0 -> x2 : A2 x0 x1 -> x3 : A3 x0 x1 x2 -> Type.
+A5 : x0 : A0 -> x1 : A1 x0 -> x2 : A2 x0 x1 -> x3 : A3 x0 x1 x2 -> x4 : A4 x0 x1 x2 x3 -> Type.
+A6 : x0 : A0 -> x1 : A1 x0 -> x2 : A2 x0 x1 -> x3 : A3 x0 x1 x2 -> x4 : A4 x0 x1 x2 x3 -> x5 : A5 x0 x1 x2 x3 x4 -> Type.
+A7 : x0 : A0 -> x1 : A1 x0 -> x2 : A2 x0 x1 -> x3 : A3 x0 x1 x2 -> x4 : A4 x0 x1 x2 x3 -> x5 : A5 x0 x1 x2 x3 x4 -> x6 : A6 x0 x1 x2 x3 x4 x5 -> Type.
