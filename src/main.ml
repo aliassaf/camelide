@@ -21,7 +21,7 @@ let argument_error () =
   exit 1
 
 let () =
-  Sys.catch_break true;
+(*  Sys.catch_break true;*)
   Arg.parse options add_file usage;
   if not !from_stdin && !files = [] then argument_error() else
   if !from_stdin then Module.load_stdin () else
