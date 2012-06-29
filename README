@@ -8,7 +8,7 @@ The source code is available on GitHub at:
 https://github.com/aliassaf/camelide
 
 You need OCaml to compile it. It was tested with OCaml 3.12.0, but previous
-versions should work just as well. To compile, simply run make in the source
+versions should work just as well. To compile, simply run make in the main
 directory. It will produce an executable named 'camelide'.
 
 Usage: ./camelide <options> <file>
