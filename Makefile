@@ -1,47 +1,21 @@
-EXECUTABLE = camelide
-MODULES    = error term scope printer rule type parser lexer module main
-GENERATED  = parser.mli parser.ml lexer.ml
+NAME = camelide
 
-# Tools
-OCAMLC    = ocamlc
-OCAMLOPT  = ocamlopt
-OCAMLDEP  = ocamldep
-OCAMLLEX  = ocamllex
-OCAMLYACC = ocamlyacc
+OCAMLBUILD = ocamlbuild
+OPTIONS    = -classic-display
 
-# Options
-BFLAGS =
-OFLAGS =
+.PHONY: native byte clean stat
 
-$(EXECUTABLE): $(MODULES:%=src/%.cmx)
-	$(OCAMLOPT) $(OFLAGS) -o $(EXECUTABLE) $(MODULES:%=src/%.cmx)
+native:
+	$(OCAMLBUILD) $(OPTIONS) -I src main.native
+	mv main.native $(NAME)
 
-$(EXECUTABLE).byte: $(MODULES:%=%.cmo)
-	$(OCAMLC) $(BFLAGS) -o $(EXECUTABLE).byte $(MODULES:%=src/%.cmo)
+byte:
+	$(OCAMLBUILD) $(OPTIONS) -I src main.byte
+	mv main.byte $(NAME)
 
-%.cmo: %.ml
-	$(OCAMLC) $(BFLAGS) -I src -c $*.ml
-%.cmi: %.mli
-	$(OCAMLC) $(BFLAGS) -I src -c $*.mli
-%.cmx: %.ml
-	$(OCAMLOPT) $(OFLAGS) -I src -c $*.ml
-%.ml %.mli: %.mly
-	$(OCAMLYACC) $*.mly	
-%.ml: %.mll
-	$(OCAMLLEX) $*.mll
-
-# Dependencies
-.depend: $(GENERATED:%=src/%)
-	ocamldep -I src src/*.ml src/*.mli > .depend
+clean:
+	$(OCAMLBUILD) $(OPTIONS) -clean
 
 # Statistics
 stat: clean
-	wc -l src/*.ml src/parser.mly src/lexer.mll
-
-# Clean up
-clean:
-	rm -f $(EXECUTABLE)
-	rm -f src/*.cm[iox] src/*.o
-	rm -f $(GENERATED:%=src/%)
-
-include .depend
+	wc -l src/*.ml src/*.mly src/*.mll
