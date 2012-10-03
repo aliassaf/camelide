@@ -5,7 +5,7 @@ open Term
    it is the current scope. *)
 let print_var out x =
   let (prefix, name) = Scope.unqualify x in
-  if prefix = "" || prefix = Scope.current_scope ()
+  if prefix = "" || prefix = !Scope.current_scope
   then fprintf out "%s" name
   else fprintf out "%s" x
 

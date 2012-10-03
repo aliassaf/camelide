@@ -11,9 +11,8 @@ let usage =
   Printf.sprintf "Usage:  %s <options> <files>\n" Sys.argv.(0)
 
 let options = Arg.align [
+  "-", Arg.Set(from_stdin), " Read from stdin instead of a file";
   "--coc", Arg.Set(Type.use_coc), " Use the full Calculus of Construction modulo (experimental)";
-  "--nocheck", Arg.Clear(Module.check_dependencies), " Do not type-check dependencies (unsound)";
-  "--stdin", Arg.Set(from_stdin), " Read from stdin instead of a file";
   "-v", Arg.Set_int(Error.verbose_level), "<level> Set verbosity level" ]
 
 let argument_error () =

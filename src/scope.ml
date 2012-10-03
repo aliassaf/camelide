@@ -1,20 +1,13 @@
 open Term
 
-(* Maintain a stack of scope names. Useful for keeping track of the current
-   scope name as modules are loaded. *)
-let scopes = Stack.create ()
-
-let current_scope () = Stack.top scopes
-
-let push_scope name = Stack.push name scopes
-
-let pop_scope () = ignore (Stack.pop scopes)
+(* Keeping track of the current scope name as modules are loaded. *)
+let current_scope = ref ""
 
 let is_qualified x = String.contains x '.'
 
 (* Prefix the unqualified identifier x with the name of the current module. *)
 let qualify x =
-  current_scope () ^ "." ^ x
+  !current_scope ^ "." ^ x
 
 (* Split the qualified identifier x into module name and unqualified name. *)
 let unqualify x =
