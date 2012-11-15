@@ -3,7 +3,7 @@ open Term
 
 let pos () = (Parsing.symbol_start_pos (), Parsing.symbol_end_pos ())
 
-let term body = {pos = pos (); body = body}
+let term body = {pos = pos (); body = body; value = false}
 %}
 
 %token <string> ID QID

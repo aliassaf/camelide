@@ -1,16 +1,16 @@
 nat : Type.
 
-0 : nat.
+Z : nat.
 
 S : nat -> nat.
 
-1 : nat.
+One : nat.
 
-[] 1 --> (S 0).
+[] One --> (S Z).
 
 plus : nat -> nat -> nat.
-[x : nat] plus x 0 --> x.
-[x : nat] plus 0 x --> x.
+[x : nat] plus x Z --> x.
+[x : nat] plus Z x --> x.
 [x : nat, y : nat] plus x (S y) --> S (plus x y).
 [x : nat, y : nat] plus (S x) y --> S (plus x y).
 
