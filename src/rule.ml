@@ -68,6 +68,7 @@ let rec reduce term spine =
       assert (List.length spine = 0); (* Eliminated by type-checking. *)
       new_term (Pi(x, normalize a, normalize b)), spine
 and normalize term =
+  if term.value then term else
   let term, spine = reduce term [] in
-  List.fold_left (fun t1 t2 -> new_term (App(t1, t2))) term spine
+  List.fold_left (fun t1 t2 -> new_value (App(t1, t2))) (evaluated term) spine
 

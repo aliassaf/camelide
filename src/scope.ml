@@ -35,7 +35,7 @@ let rec qualify_term term bound =
     | App(t1, t2) -> App(qualify_term t1 bound, qualify_term t2 bound)
     | Lam(x, a, t) -> Lam(x, qualify_term a bound, qualify_term t (x :: bound))
     | Pi (x, a, b) -> Pi (x, qualify_term a bound, qualify_term b (x :: bound))
-  in { pos = term.pos; body = body }
+  in {term with body = body}
 
 let rec qualify_env env bound =
   match env with

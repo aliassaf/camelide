@@ -1,8 +1,10 @@
 (* Terms are annotated by an additional argument to keep track of their
-   location, so that we can print useful error messages. *)
+   location, so that we can print useful error messages. The value flag
+   is true when the term has already been evaluated. *)
 type term = {
   pos : Error.pos;
-  body : body}
+  body : body;
+  value : bool}
 and body =
   | Type
   | Kind
@@ -17,7 +19,13 @@ type instruction =
   | Eof
 
 (* Terms that are created outside of parsing have a dummy position. *)
-let new_term body = {pos = Error.dummy_pos; body = body}
+let new_term body = {pos = Error.dummy_pos; body = body; value = false}
+
+(* Create a new value during evaluation. *)
+let new_value body = {pos = Error.dummy_pos; body = body; value = true}
+
+(* Flag a term that has already been evaluated. *)
+let evaluated term = {term with value = true}
 
 (* Table mapping all the currently declared constants to their type. *)
 let declarations : (string, term) Hashtbl.t = Hashtbl.create 10007
