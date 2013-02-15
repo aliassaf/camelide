@@ -1,5 +1,7 @@
 open Term
+open Pattern
 open Rule
+open Instruction
 open Type
 
 let path = ref ""
@@ -26,7 +28,7 @@ let process_declaration pos x a =
   Error.print_verbose 2 "Checking declaration %s..." x;
   let a = Scope.qualify_term a [] in
   check_declaration pos x a;
-  Hashtbl.add declarations (Scope.qualify x) (a)
+  Hashtbl.add declarations (Scope.qualify x) (normalize a)
 
 let process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
@@ -36,14 +38,17 @@ let process_rule pos env left right =
   let _, spine = extract_spine left in (* To get the qualified spine *)
   Hashtbl.add rules (Scope.qualify head) (fst (List.split env), spine, right)
 
+let process_rules rules =
+  List.iter (fun (pos, env, left, right) -> process_rule pos env left right) rules
+
 let rec process_instructions lexbuf =
   let instruction = Parser.toplevel Lexer.token lexbuf in
   match instruction with
     | Declaration(pos, x, a) ->
         process_declaration pos x a;
         process_instructions lexbuf
-    | Rule(pos, env, left, right) ->
-        process_rule pos env left right;
+    | Rules(rules) ->
+        process_rules rules;
         process_instructions lexbuf
     | Eof -> ()
 

@@ -1,4 +1,5 @@
 open Term
+open Pattern
 
 (* Keeping track of the current scope name as modules are loaded. *)
 let current_scope = ref ""
@@ -37,6 +38,21 @@ let rec qualify_term term bound =
     | Pi (x, a, b) -> Pi (x, qualify_term a bound, qualify_term b (x :: bound))
   in {term with body = body}
 
+let rec qualify_pattern pattern bound =
+  let p_body =
+    match pattern.p_body with
+    | PVar(x) ->
+        if List.mem x bound then PVar(x) else
+        if is_qualified x then
+          if is_declared x then PVar(x) else
+          Error.scope_error pattern.p_pos "undeclared variable %s" x else
+        let qx = qualify x in
+        if is_declared qx then PVar(qx) else
+        Error.scope_error pattern.p_pos "unbound variable %s" x
+    | PApp(p1, p2) -> PApp(qualify_pattern p1 bound, qualify_pattern p2 bound)
+    | PDot(t) -> PDot(qualify_term t bound)
+  in {pattern with p_body = p_body}
+
 let rec qualify_env env bound =
   match env with
   | [] -> []
@@ -45,6 +61,6 @@ let rec qualify_env env bound =
 let qualify_rule env left right =
   let env = qualify_env env [] in
   let bound = (fst (List.split env)) in
-  let left = qualify_term left bound in
+  let left = qualify_pattern left bound in
   let right = qualify_term right bound in
   env, left, right

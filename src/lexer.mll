@@ -28,6 +28,8 @@ rule token = parse
   | ")"   { RPAREN }
   | "["   { LBRACK }
   | "]"   { RBRACK }
+  | "{"   { LBRACE }
+  | "}"   { RBRACE }
   | eof   { EOF }
   | _     { Error.syntax_error (pos lexbuf) "Invalid character" }
 

@@ -1,4 +1,5 @@
 open Term
+open Pattern
 open Printer
 
 (* Mapping from head constants to reduction rules. The rule
@@ -14,19 +15,19 @@ exception MatchFailure
    such that (theta pattern) = spine, raising MatchFailure otherwise. *)
 let match_spine env head pattern spine =
   let rec match_term pattern term theta =
-    match pattern.body, term.body with
-    | Var(x), _ when List.mem x env ->
+    match pattern.p_body, term.body with
+    | PVar(x), _ when List.mem x env ->
         begin try
           let t = List.assoc x theta in
           (* Terms in the spine are already in normal form,
              so we only need to check alpha-equivalence. *)
           if alpha_equiv t term then theta else raise MatchFailure
         with Not_found -> (x, term) :: theta end
-    | Var(x), Var(y) when x = y -> theta
-    | Var(_), _ -> raise MatchFailure
-    | App(t1, t2), App(u1, u2) -> match_term t2 u2 (match_term t1 u1 theta)
-    | App(_), _ -> raise MatchFailure
-    | _ -> assert false in (* Invalid pattern, eliminated at parse time. *)
+    | PVar(x), Var(y) when x = y -> theta
+    | PVar(_), _ -> raise MatchFailure
+    | PApp(p1, p2), App(u1, u2) -> match_term p2 u2 (match_term p1 u1 theta)
+    | PApp(_), _ -> raise MatchFailure
+    | PDot(_), _ -> theta in
   let rec match_spine pattern spine theta =
     match pattern, spine with
     | [], _ ->
@@ -44,7 +45,7 @@ let match_some_rule head spine =
     | (env, left, right) :: rules ->
         begin try
           let theta, spine = match_spine env head left spine in
-          Error.print_verbose 3 "Matched rule %a --> %a" print_term (app_spine head left) print_term right;
+          Error.print_verbose 3 "Matched rule %a --> %a" print_pattern (app_spine head left) print_term right;
           Some(right, theta, spine)
         with MatchFailure -> match_some_rule rules end in
   (* Reverse the order of the list to get the good order. *)

@@ -5,6 +5,7 @@ type term = {
   pos : Error.pos;
   body : body;
   value : bool}
+
 and body =
   | Type
   | Kind
@@ -12,11 +13,6 @@ and body =
   | App of term * term
   | Lam of string * term * term
   | Pi  of string * term * term
-
-type instruction =
-  | Declaration of Error.pos * string * term
-  | Rule of Error.pos * (string * term) list * term * term
-  | Eof
 
 (* Terms that are created outside of parsing have a dummy position. *)
 let new_term body = {pos = Error.dummy_pos; body = body; value = false}
@@ -31,17 +27,6 @@ let evaluated term = {term with value = true}
 let declarations : (string, term) Hashtbl.t = Hashtbl.create 10007
 
 let is_declared x = Hashtbl.mem declarations x
-
-let extract_spine term =
-  let rec extract_spine term spine =
-    match term.body with
-    | Var(x) -> x, spine
-    | App(t1, t2) -> extract_spine t1 (t2 :: spine)
-    | _ -> assert false in
-  extract_spine term []
-
-let rec app_spine head spine =
-  List.fold_left (fun t1 t2 -> new_term (App(t1, t2))) (new_term (Var(head))) spine
 
 let free_vars_acc fv term =
   let rec free_vars bound fv term =

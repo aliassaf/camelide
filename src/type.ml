@@ -1,4 +1,5 @@
 open Term
+open Pattern
 open Rule
 open Printer
 
@@ -33,11 +34,14 @@ let rec type_of env term =
       let b  = type_of ((x, a) :: env) t in
       let s2 = type_of ((x, a) :: env) b in
       let _  = product_rule s1 s2 term.pos in
+(*      let _ = type_of env a in*)
+(*      let b = type_of ((x, a) :: env) t in*)
       new_term (Pi(x, a, b))
   | Pi(x, a, b) ->
       let s1 = type_of env a in
       let s2 = type_of ((x, a) :: env) b in
       product_rule s1 s2 term.pos
+
 and check_type env term a =
   let a = normalize a in
   let b = normalize (type_of env term) in
@@ -66,26 +70,8 @@ let check_env env =
         check_env ((x, a) :: checked) t
   in check_env [] env
 
-(* Check that a pattern is well-formed. A well-formed pattern consists of
-   variables and constant applications. Variables cannot be applied. *)
-let check_head term env =
-  let rec check_head term =
-    match term.body with
-    | Var(x) ->
-        if not (List.mem_assoc x env) then () else
-        Error.pattern_error term.pos "Variables are not allowed in head positions"
-    | App(t1, t2) ->
-        check_pattern t2;
-        check_head t1
-    | _ -> assert false (* Eliminated by the parser. *)
-  and check_pattern term =
-    match term.body with
-    | Var(_) -> ()
-    | _ -> check_head term in
-  check_head term
-
 let check_rule_fv left right =
-  let fvl = free_vars left in
+  let fvl = free_pvars left in
   let fvr = free_vars right in
   try
     let x = List.find (fun x -> not (List.mem x fvl)) fvr in
@@ -93,8 +79,8 @@ let check_rule_fv left right =
   with Not_found -> ()
 
 let check_rule pos env left right =
-  check_head left env;
+  check_pattern env left;
   check_rule_fv left right;
   let env = check_env env in (* Reverses the order of env. *)
-  let a = type_of env left in
+  let a = type_of env (term_of_pattern left) in
   check_type env right a

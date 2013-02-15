@@ -1,5 +1,6 @@
 open Printf
 open Term
+open Pattern
 
 (* Try to shorten fully qualified names by dropping the module prefix when
    it is the current scope. *)
@@ -32,6 +33,18 @@ let print_term out term =
     | Var(x) -> fprintf out "%a" print_var x
     | _ -> fprintf out "(%a)" print_term term in
   print_term out term
+
+let print_pattern out pattern =
+  let rec print_pattern out term =
+    match pattern.p_body with
+    | PApp(p1, p2) -> fprintf out "%a %a" print_pattern p1 print_simple_pattern p2
+    | _ -> print_simple_pattern out term
+  and print_simple_pattern out term =
+    match pattern.p_body with
+    | PVar(x) -> fprintf out "%a" print_var x
+    | PDot(t) -> fprintf out "{%a}" print_term t
+    | _ -> fprintf out "(%a)" print_pattern pattern in
+  print_pattern out pattern
 
 let print_declaration out (x, a) =
   fprintf out "%s : %a.\n" x print_term a
