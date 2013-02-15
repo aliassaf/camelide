@@ -84,15 +84,15 @@ let load_module name =
   process_instructions lexbuf;
   Error.print_verbose 1 "Finished loading %s!" name
 
-let load_file filename =  
-  path := Filename.dirname filename;
-  if Filename.check_suffix filename ".dk" then () else
-  Error.module_error "Invalid file extension %s" filename;
-  let module_name = Filename.chop_extension (Filename.basename filename) in
-  load_module module_name;
+let load_file filename =
+  if filename = "-" then (
+    path := ".";
+    load_module "-")
+  else (
+    path := Filename.dirname filename;
+    if Filename.check_suffix filename ".dk" then () else
+    Error.module_error "Invalid file extension %s" filename;
+    let module_name = Filename.chop_extension (Filename.basename filename) in
+    load_module module_name);
   Error.print_verbose 0 "OK!"
 
-let load_stdin () =
-  path := ".";
-  load_module "-";
-  Error.print_verbose 0 "OK!"
