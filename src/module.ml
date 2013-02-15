@@ -30,6 +30,21 @@ let process_declaration pos x a =
   check_declaration pos x a;
   Hashtbl.add declarations (Scope.qualify x) (normalize a)
 
+let process_definition pos x a t =
+  Error.print_verbose 2 "Checking definition %s..." x;
+  let a = Scope.qualify_term a [] in
+  let t = Scope.qualify_term t [] in
+  check_definition pos x a t;
+  Hashtbl.add declarations (Scope.qualify x) (normalize a);
+  Hashtbl.add rules (Scope.qualify x) ([], [], t)
+
+let process_opaque_def pos x a t =
+  Error.print_verbose 2 "Checking opaque definition %s..." x;
+  let a = Scope.qualify_term a [] in
+  let t = Scope.qualify_term t [] in
+  check_definition pos x a t;
+  Hashtbl.add declarations (Scope.qualify x) (normalize a)
+
 let process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
   Error.print_verbose 2 "Checking rule for %s..." head;
@@ -41,16 +56,25 @@ let process_rule pos env left right =
 let process_rules rules =
   List.iter (fun (pos, env, left, right) -> process_rule pos env left right) rules
 
-let rec process_instructions lexbuf =
-  let instruction = Parser.toplevel Lexer.token lexbuf in
+let process_instruction instruction =
   match instruction with
     | Declaration(pos, x, a) ->
-        process_declaration pos x a;
-        process_instructions lexbuf
+        process_declaration pos x a
+    | Definition(pos, x, a, t) ->
+        process_definition pos x a t
+    | OpaqueDef(pos, x, a, t) ->
+        process_opaque_def pos x a t
     | Rules(rules) ->
-        process_rules rules;
-        process_instructions lexbuf
-    | Eof -> ()
+        process_rules rules
+    | _ -> ()
+
+let rec process_instructions lexbuf =
+  let instruction = Parser.instruction Lexer.token lexbuf in
+  match instruction with
+  | Eof -> ()
+  | _ ->
+      process_instruction instruction;
+      process_instructions lexbuf
 
 (* Modules are loaded, parsed, and executed on the fly, as needed. *)
 let load_module name =

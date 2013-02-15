@@ -59,6 +59,10 @@ let check_declaration pos x a =
     then Error.type_error pos "Declaration %s is already defined" x else
   check_sort [] a
 
+let check_definition pos x a t =
+  check_declaration pos x a;
+  check_type [] t a
+
 (* Check that the environment env is well-formed. The order of the environment
    is reversed during the process. *)
 let check_env env =

@@ -24,6 +24,7 @@ rule token = parse
   | "->"  { ARROW }
   | "=>"  { DOUBLE_ARROW }
   | "-->" { LONG_ARROW }
+  | ":="  { DEF }
   | "("   { LPAREN }
   | ")"   { RPAREN }
   | "["   { LBRACK }
