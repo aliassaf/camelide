@@ -1,0 +1,4 @@
+A : Type.
+P : A -> Type.
+t : x : A -> P x -> P x.
+[] t --> x : A => x : P x => x.
