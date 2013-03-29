@@ -20,4 +20,5 @@ let argument_error () =
 let () =
 (*  Sys.catch_break true;*)
   Arg.parse options add_file usage;
-  List.iter Module.load_file (List.rev !files)
+  List.iter Module.load_file (List.rev !files);
+  prerr_endline "OK"

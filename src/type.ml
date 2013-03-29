@@ -27,15 +27,15 @@ let rec type_of env term =
   | App(t1, t2) ->
       let a1 = normalize (type_of env t1) in
       begin match a1.body with
-      | Pi(x, a, b) -> check_type env t2 a; if x = "" then b else subst [x, t2] b
+      | Pi(x, a, b) -> check_type env t2 a; if x = "" then b else normalize (subst [x, t2] b)
       | _ -> Error.type_error t1.pos "This term has type\n %a\nbut a product type was expected" print_term a1 end
   | Lam(x, a, t) ->
-      let s1 = type_of env a in
-      let b  = type_of ((x, a) :: env) t in
-      let s2 = type_of ((x, a) :: env) b in
-      let _  = product_rule s1 s2 term.pos in
-(*      let _ = type_of env a in*)
-(*      let b = type_of ((x, a) :: env) t in*)
+(*      let s1 = type_of env a in*)
+(*      let b  = type_of ((x, a) :: env) t in*)
+(*      let s2 = type_of ((x, a) :: env) b in*)
+(*      let _  = product_rule s1 s2 term.pos in*)
+      let _ = type_of env a in
+      let b = type_of ((x, a) :: env) t in
       new_term (Pi(x, a, b))
   | Pi(x, a, b) ->
       let s1 = type_of env a in
@@ -43,9 +43,9 @@ let rec type_of env term =
       product_rule s1 s2 term.pos
 
 and check_type env term a =
-  let a = normalize a in
-  let b = normalize (type_of env term) in
-  if alpha_equiv a b then () else
+(*  let a = normalize a in*)
+  let b = type_of env term in
+  if equiv a b then () else
   Error.type_error term.pos "This term has type\n %a\nbut a term was expected of type\n %a" print_term b print_term a
 
 let check_sort env term =

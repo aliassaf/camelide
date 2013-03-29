@@ -6,7 +6,7 @@ open Type
 
 let path = ref ""
 
-let check_dependencies = ref true
+let check_dependencies = ref false
 
 (* Create a lexer buffer from the given filename and register the filename in
    the lexbuf to obtain useful error messages. *)
@@ -32,18 +32,31 @@ let process_declaration pos x a =
 
 let process_definition pos x a t =
   Error.print_verbose 2 "Checking definition %s..." x;
-  let a = Scope.qualify_term a [] in
-  let t = Scope.qualify_term t [] in
-  check_definition pos x a t;
-  Hashtbl.add declarations (Scope.qualify x) (normalize a);
-  Hashtbl.add rules (Scope.qualify x) ([], [], t)
+  match a with
+  | Some(a) -> 
+      let a = Scope.qualify_term a [] in
+      let t = Scope.qualify_term t [] in
+      check_definition pos x a t;
+      Hashtbl.add declarations (Scope.qualify x) (normalize a);
+      Hashtbl.add rules (Scope.qualify x) ([], [], t)
+  | None ->
+      let t = Scope.qualify_term t [] in
+      let a = type_of [] t in
+      Hashtbl.add declarations (Scope.qualify x) a;
+      Hashtbl.add rules (Scope.qualify x) ([], [], t)
 
 let process_opaque_def pos x a t =
   Error.print_verbose 2 "Checking opaque definition %s..." x;
-  let a = Scope.qualify_term a [] in
-  let t = Scope.qualify_term t [] in
-  check_definition pos x a t;
-  Hashtbl.add declarations (Scope.qualify x) (normalize a)
+  match a with
+  | Some(a) -> 
+      let a = Scope.qualify_term a [] in
+      let t = Scope.qualify_term t [] in
+      check_definition pos x a t;
+      Hashtbl.add declarations (Scope.qualify x) (normalize a)
+  | None ->
+      let t = Scope.qualify_term t [] in
+      let a = type_of [] t in
+      Hashtbl.add declarations (Scope.qualify x) a
 
 let process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
@@ -93,6 +106,4 @@ let load_file filename =
     if Filename.check_suffix filename ".dk" then () else
     Error.module_error "Invalid file extension %s" filename;
     let module_name = Filename.chop_extension (Filename.basename filename) in
-    load_module module_name);
-  Error.print_verbose 0 "OK!"
-
+    load_module module_name)    

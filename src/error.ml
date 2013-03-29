@@ -24,7 +24,7 @@ let print_pos (start_pos, end_pos) =
 let print_error_and_exit error_name =
   flush stdout;
   Printf.eprintf "%s: " error_name;
-  Printf.kfprintf (fun _ -> prerr_newline (); exit 1) stderr
+  Printf.kfprintf (fun _ -> prerr_newline (); prerr_endline "KO"; exit 1) stderr
 
 let syntax_error pos format =  
   print_pos pos;

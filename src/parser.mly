@@ -33,10 +33,12 @@ declaration:
   | ID COLON term DOT { Declaration(pos (), $1, $3) }
 
 definition:
-  | ID COLON term DEF term DOT { Definition(pos (), $1, $3, $5) }
+  | ID COLON term DEF term DOT { Definition(pos (), $1, Some($3), $5) }
+  | ID DEF term DOT { Definition(pos (), $1, None, $3) }
 
 opaque_def:
-  | LBRACE ID RBRACE COLON term DEF term DOT { OpaqueDef(pos (), $2, $5, $7) }
+  | LBRACE ID RBRACE COLON term DEF term DOT { OpaqueDef(pos (), $2, Some($5), $7) }
+  | LBRACE ID RBRACE DEF term DOT { OpaqueDef(pos (), $2, None, $5) }
 
 rules:
   | rule DOT { [$1] }

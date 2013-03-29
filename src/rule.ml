@@ -63,13 +63,30 @@ let rec reduce term spine =
   | App(t1, t2) -> reduce t1 (normalize t2 :: spine)
   | Lam(x, a, t) ->
       begin match spine with
-      | [] -> new_term (Lam(x, normalize a, normalize t)), spine
+      | [] -> new_term (Lam(x, a, normalize t)), spine
       | u :: spine -> reduce (subst [x, u] t) spine end
   | Pi (x, a, b) ->
       assert (List.length spine = 0); (* Eliminated by type-checking. *)
-      new_term (Pi(x, normalize a, normalize b)), spine
+      new_term (Pi(x, a, b)), spine
 and normalize term =
   if term.value then term else
   let term, spine = reduce term [] in
   List.fold_left (fun t1 t2 -> new_value (App(t1, t2))) (evaluated term) spine
+
+let equiv t u =
+  let rec equiv t u env =
+    match (normalize t).body, (normalize u).body with
+    | Type, Type -> true
+    | Kind, Kind -> true
+    | Var(x), Var(y) ->
+        begin try List.assoc x env = y
+        with Not_found -> x = y && not (List.exists (fun (z, w) -> w = y) env) end
+    | App(t1, t2), App(u1, u2) ->
+        equiv t1 u1 env && equiv t2 u2 env
+    | Lam(x, a, t), Lam(y, b, u) ->
+        equiv a b env && equiv t u ((x, y) :: env)
+    | Pi(x, a1, a2), Pi(y, b1, b2) ->
+        equiv a1 b1 env && equiv a2 b2 ((x, y) :: env)
+    | _ -> false in
+  equiv t u []
 
