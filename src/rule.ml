@@ -63,16 +63,17 @@ let rec reduce term spine =
   | App(t1, t2) -> reduce t1 (normalize t2 :: spine)
   | Lam(x, a, t) ->
       begin match spine with
-      | [] -> new_term (Lam(x, a, t)), spine
+      | [] -> new_term (Lam(x, normalize a, normalize t)), spine
       | u :: spine -> reduce (subst [x, u] t) spine end
   | Pi (x, a, b) ->
       assert (List.length spine = 0); (* Eliminated by type-checking. *)
-      new_term (Pi(x, a, b)), spine
+      new_term (Pi(x, normalize a, normalize b)), spine
 and normalize term =
   if term.value then term else
   let term, spine = reduce term [] in
   List.fold_left (fun t1 t2 -> new_value (App(t1, t2))) (evaluated term) spine
 
+(* Useful if we were using weak normalization. *)
 let equiv t u =
   let rec equiv t u env =
     match (normalize t).body, (normalize u).body with
