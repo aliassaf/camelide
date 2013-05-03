@@ -86,7 +86,12 @@ let process_rules rules =
 let rec process_instruction instruction =
   match instruction with
     | Import(pos, name) ->
-        load_module name !check_dependencies;
+        let backup_check = !check_current in
+        let backup_scope = !Scope.current_scope in
+        check_current := !check_dependencies;
+        load_module name;
+        check_current := backup_check;
+        Scope.current_scope := backup_scope
     | Declaration(pos, x, a) ->
         process_declaration pos x a
     | Definition(pos, x, a, t) ->
@@ -106,21 +111,18 @@ and process_instructions lexbuf =
       process_instructions lexbuf
 
 (* Modules are loaded, parsed, and executed on the fly, as needed. *)
-and load_module name check =
+and load_module name =
   if not (List.mem name !loaded_modules) then (
     if List.mem name !loading_modules then
       Error.module_error "Circular dependency in module %s" name;
     loading_modules := name :: !loading_modules;
     if not (List.mem name !loaded_modules) then
-      if check
+      if !check_current
         then Error.print_verbose 1 "Loading module %s..." name
         else Error.print_verbose 1 "Loading module %s (no checking)..." name;
-    let backup = !check_current in
-    check_current := check;
     Scope.current_scope := name;
     let lexbuf = create_lexbuf name in
     process_instructions lexbuf;
-    check_current := backup;
     loading_modules := List.tl !loading_modules;
     loaded_modules := name :: !loaded_modules;
     Error.print_verbose 1 "Finished loading %s!" name)
@@ -128,10 +130,10 @@ and load_module name check =
 let load_file filename =
   if filename = "-" then (
     path := ".";
-    load_module "-" true)
+    load_module "-")
   else (
     path := Filename.dirname filename;
     if Filename.check_suffix filename ".dk" then () else
     Error.module_error "Invalid file extension %s" filename;
     let module_name = Filename.chop_extension (Filename.basename filename) in
-    load_module module_name true)    
+    load_module module_name)    
