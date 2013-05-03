@@ -2,6 +2,7 @@ open Term
 open Pattern
 
 type instruction =
+  | Import of Error.pos * string
   | Declaration of Error.pos * string * term
   | Definition of Error.pos * string * term option * term
   | OpaqueDef of Error.pos * string * term option * term

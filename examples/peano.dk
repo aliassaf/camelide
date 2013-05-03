@@ -1,3 +1,6 @@
+#IMPORT coc
+#IMPORT logic
+
 nat : Type.
 
 nat_ : coc.Utype.

@@ -6,7 +6,13 @@ open Type
 
 let path = ref ""
 
-let check_dependencies = ref false
+let check_dependencies = ref true
+
+let loading_modules = ref []
+
+let loaded_modules = ref []
+
+let check_current = ref true
 
 (* Create a lexer buffer from the given filename and register the filename in
    the lexbuf to obtain useful error messages. *)
@@ -25,18 +31,22 @@ let create_lexbuf filename =
   lexbuf
 
 let process_declaration pos x a =
-  Error.print_verbose 2 "Checking declaration %s..." x;
+  if !check_current
+    then Error.print_verbose 2 "Checking declaration %s..." x
+    else Error.print_verbose 2 "Loading declaration %s (no checking)..." x;
   let a = Scope.qualify_term a [] in
-  check_declaration pos x a;
+  if !check_current then check_declaration pos x a;
   Hashtbl.add declarations (Scope.qualify x) (normalize a)
 
 let process_definition pos x a t =
-  Error.print_verbose 2 "Checking definition %s..." x;
+  if !check_current
+    then Error.print_verbose 2 "Checking definition %s..." x
+    else Error.print_verbose 2 "Loading definition %s (no checking)..." x;
   match a with
   | Some(a) -> 
       let a = Scope.qualify_term a [] in
       let t = Scope.qualify_term t [] in
-      check_definition pos x a t;
+      if !check_current then check_definition pos x a t;
       Hashtbl.add declarations (Scope.qualify x) (normalize a);
       Hashtbl.add rules (Scope.qualify x) ([], [], t)
   | None ->
@@ -46,12 +56,14 @@ let process_definition pos x a t =
       Hashtbl.add rules (Scope.qualify x) ([], [], t)
 
 let process_opaque_def pos x a t =
-  Error.print_verbose 2 "Checking opaque definition %s..." x;
+  if !check_current
+    then Error.print_verbose 2 "Checking opaque definition %s..." x
+    else Error.print_verbose 2 "Loading opaque definition %s (no checking)..." x;
   match a with
   | Some(a) -> 
       let a = Scope.qualify_term a [] in
       let t = Scope.qualify_term t [] in
-      check_definition pos x a t;
+      if !check_current then check_definition pos x a t;
       Hashtbl.add declarations (Scope.qualify x) (normalize a)
   | None ->
       let t = Scope.qualify_term t [] in
@@ -60,17 +72,21 @@ let process_opaque_def pos x a t =
 
 let process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
-  Error.print_verbose 2 "Checking rule for %s..." head;
+  if !check_current
+    then Error.print_verbose 2 "Checking rule for %s..." head
+    else Error.print_verbose 2 "Loading rule for %s (no checking)..." head;
   let env, left, right = Scope.qualify_rule env left right in
-  check_rule pos env left right;
+  if !check_current then check_rule pos env left right;
   let _, spine = extract_spine left in (* To get the qualified spine *)
   Hashtbl.add rules (Scope.qualify head) (fst (List.split env), spine, right)
 
 let process_rules rules =
   List.iter (fun (pos, env, left, right) -> process_rule pos env left right) rules
 
-let process_instruction instruction =
+let rec process_instruction instruction =
   match instruction with
+    | Import(pos, name) ->
+        load_module name !check_dependencies;
     | Declaration(pos, x, a) ->
         process_declaration pos x a
     | Definition(pos, x, a, t) ->
@@ -81,7 +97,7 @@ let process_instruction instruction =
         process_rules rules
     | _ -> ()
 
-let rec process_instructions lexbuf =
+and process_instructions lexbuf =
   let instruction = Parser.instruction Lexer.token lexbuf in
   match instruction with
   | Eof -> ()
@@ -90,20 +106,32 @@ let rec process_instructions lexbuf =
       process_instructions lexbuf
 
 (* Modules are loaded, parsed, and executed on the fly, as needed. *)
-let load_module name =
-  Error.print_verbose 1 "Loading module %s..." name;
-  Scope.current_scope := name;
-  let lexbuf = create_lexbuf name in
-  process_instructions lexbuf;
-  Error.print_verbose 1 "Finished loading %s!" name
+and load_module name check =
+  if not (List.mem name !loaded_modules) then (
+    if List.mem name !loading_modules then
+      Error.module_error "Circular dependency in module %s" name;
+    loading_modules := name :: !loading_modules;
+    if not (List.mem name !loaded_modules) then
+      if check
+        then Error.print_verbose 1 "Loading module %s..." name
+        else Error.print_verbose 1 "Loading module %s (no checking)..." name;
+    let backup = !check_current in
+    check_current := check;
+    Scope.current_scope := name;
+    let lexbuf = create_lexbuf name in
+    process_instructions lexbuf;
+    check_current := backup;
+    loading_modules := List.tl !loading_modules;
+    loaded_modules := name :: !loaded_modules;
+    Error.print_verbose 1 "Finished loading %s!" name)
 
 let load_file filename =
   if filename = "-" then (
     path := ".";
-    load_module "-")
+    load_module "-" true)
   else (
     path := Filename.dirname filename;
     if Filename.check_suffix filename ".dk" then () else
     Error.module_error "Invalid file extension %s" filename;
     let module_name = Filename.chop_extension (Filename.basename filename) in
-    load_module module_name)    
+    load_module module_name true)    
