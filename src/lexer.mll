@@ -6,6 +6,7 @@ let pos lexbuf = (Lexing.lexeme_start_p lexbuf, Lexing.lexeme_end_p lexbuf)
 
 let id = (['_' '\'' '0'-'9' 'a'-'z' 'A'-'Z'])+
 let qid = id '.' id
+let special = "#" [^'\n']*
 let open_comment = "(*" | "(;"
 let close_comment = "*)" | ";)"
 
@@ -13,7 +14,8 @@ rule token = parse
   | [' ' '\t']   { token lexbuf } (* skip blanks *)
   | '\n'         { Lexing.new_line lexbuf; token lexbuf }
   | open_comment { comment (pos lexbuf) [] lexbuf }
-  | "#IMPORT "    { IMPORT }
+  | "#IMPORT "   { IMPORT }
+  | special      { token lexbuf }
   | "Type"       { TYPE }
   | id as id     { ID(id) }
   | qid as qid   { QID(qid) }
