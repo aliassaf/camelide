@@ -63,7 +63,7 @@ let rec reduce term spine =
   | App(t1, t2) -> reduce t1 (normalize t2 :: spine)
   | Lam(x, a, t) ->
       begin match spine with
-      | [] -> new_term (Lam(x, a, normalize t)), spine
+      | [] -> new_term (Lam(x, a, t)), spine
       | u :: spine -> reduce (subst [x, u] t) spine end
   | Pi (x, a, b) ->
       assert (List.length spine = 0); (* Eliminated by type-checking. *)

@@ -18,10 +18,10 @@ and body =
 let new_term body = {pos = Error.dummy_pos; body = body; value = false}
 
 (* Create a new value during evaluation. *)
-let new_value body = {pos = Error.dummy_pos; body = body; value = false}
+let new_value body = {pos = Error.dummy_pos; body = body; value = true}
 
 (* Flag a term that has already been evaluated. *)
-let evaluated term = {term with value = false}
+let evaluated term = {term with value = true}
 
 (* Table mapping all the currently declared constants to their type. *)
 let declarations : (string, term) Hashtbl.t = Hashtbl.create 10007
