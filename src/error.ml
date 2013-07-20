@@ -1,6 +1,6 @@
 open Lexing
 
-let verbose_level = ref 0
+let verbose_level = ref 2
 
 (* Datatype to keep track of the location of the terms *)
 type pos = Lexing.position * Lexing.position
