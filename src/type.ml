@@ -44,7 +44,9 @@ let rec type_of env term =
 
 and check_type env term a =
   let b = type_of env term in
-  if alpha_equiv (normalize a) (normalize b) then () else
+  let a = normalize a in
+  let b = normalize b in
+  if alpha_equiv a b then () else
   Error.type_error term.pos "This term has type\n %a\nbut a term was expected of type\n %a" print_term b print_term a
 
 let check_sort env term =
