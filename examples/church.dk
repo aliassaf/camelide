@@ -1,3 +1,5 @@
+#NAME Church
+
 type : Type.
 arr : type -> type -> type.
 e : type -> Type.
@@ -22,9 +24,12 @@ m : numeral => n : numeral => A : type => n (arr A A) (m A).
 four : numeral := plus two two.
 five : numeral := plus two three.
 
-test : numeral := power two (plus (times four four) one).
+test : numeral := power two (plus one (times three four)).
+test_ : numeral := power two (plus (times four four) one).
 
 P : numeral -> Type.
 
 x : P test.
-y : P test := x.
+y : P test_.
+[] y --> x.
+

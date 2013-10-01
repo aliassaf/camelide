@@ -1,3 +1,5 @@
+#NAME Chameleon2
+
 A : Type.
 P : A -> Type.
 t : x : A -> P x -> P x.

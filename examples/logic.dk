@@ -1,3 +1,5 @@
+#NAME Logic
+
 #IMPORT coc
 
 False : coc.Utype.

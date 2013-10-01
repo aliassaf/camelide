@@ -1,17 +1,35 @@
-nat : Type.
+#NAME Nat
 
-Z : nat.
+Nat: Type.
 
-S : nat -> nat.
+Z: Nat.
 
-One : nat.
+S: Nat -> Nat.
 
-[] One --> (S Z).
+plus: Nat -> Nat -> Nat.
+[x:Nat] plus Z x --> x
+[x:Nat,y:Nat] plus (S x) y --> S (plus x y).
 
-plus : nat -> nat -> nat.
-[x : nat] plus x Z --> x.
-[x : nat] plus Z x --> x.
-[x : nat, y : nat] plus x (S y) --> S (plus x y).
-[x : nat, y : nat] plus (S x) y --> S (plus x y).
+mult: Nat -> Nat -> Nat.
+[x:Nat] mult Z x --> Z
+[x:Nat,y:Nat] mult (S x) y --> plus (mult x y) y.
 
+pow: Nat -> Nat -> Nat.
+[x:Nat] pow x Z --> S Z
+[x:Nat,y:Nat] pow x (S y) --> mult (pow x y) x.
 
+oneK: Nat.
+[] oneK --> pow (S (S (S (S Z)))) (S (S (S (S (S Z))))).
+
+fourK: Nat.
+[] fourK --> mult (S (S (S (S Z)))) oneK.
+
+oneM: Nat.
+[] oneM --> mult oneK oneK.
+
+DepType: Nat -> Type.
+
+convTest: n: Nat -> DepType n.
+
+[] convTest (plus fourK Z) --> convTest fourK
+.

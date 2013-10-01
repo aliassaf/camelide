@@ -1,3 +1,5 @@
+#NAME Scope
+
 A : Type.
 B : Type.
 x : B.

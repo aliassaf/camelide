@@ -1,2 +1,4 @@
+#NAME BadProduct
+
 A : Type.
 x : y : A -> (z : A => Type) y.
