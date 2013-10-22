@@ -3,6 +3,7 @@ open Pattern
 open Rule
 open Instruction
 open Type
+open Printer
 
 let path = ref ""
 
@@ -83,6 +84,13 @@ let process_rule pos env left right =
 let process_rules rules =
   List.iter (fun (pos, env, left, right) -> process_rule pos env left right) rules
 
+let process_normalize t =
+  Error.print_verbose 2 "Normalizing %a" print_term t;
+  let t = Scope.qualify_term t [] in
+  let a = type_of [] t in
+  let t = normalize t in
+  Error.print_verbose 2 "%a" print_term t
+
 let rec process_instruction instruction =
   match instruction with
     | Name(pos, name) -> ()
@@ -93,6 +101,8 @@ let rec process_instruction instruction =
         load_module name;
         check_current := backup_check;
         Scope.current_scope := backup_scope
+    | Normalize(pos, t) ->
+        process_normalize t
     | Declaration(pos, x, a) ->
         process_declaration pos x a
     | Definition(pos, x, a, t) ->

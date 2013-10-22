@@ -11,7 +11,7 @@ let pattern body = {p_pos = pos(); p_body = body}
 %}
 
 %token <string> ID QID
-%token NAME IMPORT
+%token NAME IMPORT NORMALIZE
 %token TYPE COLON COMMA DOT ARROW DOUBLE_ARROW LONG_ARROW DEF
 %token LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE EOF
 %start instruction
@@ -25,6 +25,7 @@ qid:
 instruction:
   | NAME ID { Name(pos (), $2) }
   | IMPORT ID { Import(pos (), $2) }
+  | NORMALIZE term { Normalize(pos (), $2) }
   | declaration { $1 }
   | definition { $1 }
   | opaque_def { $1 }

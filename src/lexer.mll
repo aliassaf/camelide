@@ -15,6 +15,7 @@ rule token = parse
   | open_comment { comment (pos lexbuf) [] lexbuf }
   | "#NAME"      { NAME }
   | "#IMPORT"    { IMPORT }
+  | "#NORMALIZE" { NORMALIZE }
   | "Type"       { TYPE }
   | id as id     { ID(id) }
   | qid as qid   { QID(qid) }
