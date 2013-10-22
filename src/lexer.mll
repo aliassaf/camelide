@@ -13,8 +13,8 @@ rule token = parse
   | [' ' '\t']   { token lexbuf } (* skip blanks *)
   | '\n'         { Lexing.new_line lexbuf; token lexbuf }
   | open_comment { comment (pos lexbuf) [] lexbuf }
-  | "#IMPORT "   { IMPORT }
-  | "#NAME" [^'\n']* { token lexbuf }
+  | "#NAME"      { NAME }
+  | "#IMPORT"    { IMPORT }
   | "Type"       { TYPE }
   | id as id     { ID(id) }
   | qid as qid   { QID(qid) }

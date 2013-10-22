@@ -85,6 +85,7 @@ let process_rules rules =
 
 let rec process_instruction instruction =
   match instruction with
+    | Name(pos, name) -> ()
     | Import(pos, name) ->
         let backup_check = !check_current in
         let backup_scope = !Scope.current_scope in
@@ -100,7 +101,7 @@ let rec process_instruction instruction =
         process_opaque_def pos x a t
     | Rules(rules) ->
         process_rules rules
-    | _ -> ()
+    | Eof -> ()
 
 and process_instructions lexbuf =
   let instruction = Parser.instruction Lexer.token lexbuf in

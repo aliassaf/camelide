@@ -11,7 +11,8 @@ let pattern body = {p_pos = pos(); p_body = body}
 %}
 
 %token <string> ID QID
-%token IMPORT TYPE COLON COMMA DOT ARROW DOUBLE_ARROW LONG_ARROW DEF
+%token NAME IMPORT
+%token TYPE COLON COMMA DOT ARROW DOUBLE_ARROW LONG_ARROW DEF
 %token LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE EOF
 %start instruction
 %type <Instruction.instruction> instruction
@@ -22,16 +23,14 @@ qid:
   | ID { $1 }
 
 instruction:
-  | special { $1 }
+  | NAME ID { Name(pos (), $2) }
+  | IMPORT ID { Import(pos (), $2) }
   | declaration { $1 }
   | definition { $1 }
   | opaque_def { $1 }
   | rules { Rules($1) }
   | EOF { Eof }
   | error { Error.syntax_error (pos ()) "Invalid expression" }
-
-special: 
-  | IMPORT ID { Import(pos (), $2) }
 
 declaration:
   | ID COLON term DOT { Declaration(pos (), $1, $3) }
