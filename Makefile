@@ -2,6 +2,7 @@ NAME = camelide
 
 OCAMLBUILD = ocamlbuild
 OPTIONS    = -classic-display
+INSTALL_PATH = /usr/local/bin/
 
 .PHONY: native byte clean stat
 
@@ -19,3 +20,6 @@ clean:
 # Statistics
 stat: clean
 	wc -l src/*.ml src/*.mly src/*.mll
+
+install:
+	cp $(NAME) $(INSTALL_PATH)
