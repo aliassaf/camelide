@@ -28,10 +28,10 @@ let rec qualify_term term bound =
         if List.mem x bound then Var(x) else
         if is_qualified x then
           if is_declared x then Var(x) else
-          Error.scope_error term.pos "undeclared variable %s" x else
+          Error.scoping_error term.pos "undeclared variable %s" x else
         let qx = qualify x in
         if is_declared qx then Var(qx) else
-        Error.scope_error term.pos "unbound variable %s" x
+        Error.scoping_error term.pos "unbound variable %s" x
     | App(t1, t2) -> App(qualify_term t1 bound, qualify_term t2 bound)
     | Lam(x, a, t) -> Lam(x, qualify_term a bound, qualify_term t (x :: bound))
     | Pi (x, a, b) -> Pi (x, qualify_term a bound, qualify_term b (x :: bound))
@@ -44,10 +44,10 @@ let rec qualify_pattern pattern bound =
         if List.mem x bound then PVar(x) else
         if is_qualified x then
           if is_declared x then PVar(x) else
-          Error.scope_error pattern.p_pos "undeclared variable %s" x else
+          Error.scoping_error pattern.p_pos "undeclared variable %s" x else
         let qx = qualify x in
         if is_declared qx then PVar(qx) else
-        Error.scope_error pattern.p_pos "unbound variable %s" x
+        Error.scoping_error pattern.p_pos "unbound variable %s" x
     | PApp(p1, p2) -> PApp(qualify_pattern p1 bound, qualify_pattern p2 bound)
     | PDot(t) -> PDot(qualify_term t bound)
   in {pattern with p_body = p_body}

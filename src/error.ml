@@ -23,25 +23,25 @@ let print_pos (start_pos, end_pos) =
 (* Printf-like function for reporting an error before exiting. *)
 let print_error_and_exit error_name =
   flush stdout;
-  Printf.eprintf "%s: " error_name;
+  Printf.eprintf "%s Error: " error_name;
   Printf.kfprintf (fun _ -> prerr_newline (); prerr_endline "KO"; exit 1) stderr
 
 let syntax_error pos format =  
   print_pos pos;
-  print_error_and_exit "Syntax Error" format
+  print_error_and_exit "Syntax" format
 
-let scope_error pos format =
+let scoping_error pos format =
   print_pos pos;
-  print_error_and_exit "Scope Error" format
+  print_error_and_exit "Scoping" format
 
-let type_error pos format =
+let typing_error pos format =
   print_pos pos;
-  print_error_and_exit "Type Error" format
+  print_error_and_exit "Typing" format
 
 let pattern_error pos format =  
   print_pos pos;
-  print_error_and_exit "Pattern Error" format
+  print_error_and_exit "Pattern" format
 
 let module_error format =
-  print_error_and_exit "Module Error" format
+  print_error_and_exit "Module" format
 
