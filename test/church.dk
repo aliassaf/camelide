@@ -1,5 +1,7 @@
 #NAME Church
 
+(; Test huge computations on Church numerals ;)
+
 type : Type.
 arr : type -> type -> type.
 e : type -> Type.

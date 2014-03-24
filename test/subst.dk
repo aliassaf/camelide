@@ -1,5 +1,7 @@
 #NAME Subst
 
+(; Testing exponential blowup of naive type checking of lambda abstractions. ;)
+
 A : Type.
 x : A.
 t : (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => (x : A => A) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x) x.

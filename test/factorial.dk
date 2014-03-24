@@ -1,4 +1,6 @@
-#NAME Compute
+#NAME Factorial
+
+(; Compute factorial of 9 ;)
 
 Nat : Type.
 Z : Nat.
@@ -19,7 +21,7 @@ fact : Nat -> Nat.
 nine : Nat.
 [] nine --> (S (S (S (S (S (S (S (S (S Z))))))))).
 
-I : Nat -> Type.
+P : Nat -> Type.
 
-test : I (fact nine).
+test : P (fact nine).
 [] test --> test.

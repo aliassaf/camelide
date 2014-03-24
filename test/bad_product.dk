@@ -1,4 +1,6 @@
 #NAME BadProduct
 
+(; The sort of the body of the lambda abstraction is too high. ;)
+
 A : Type.
 x : y : A -> (z : A => Type) y.

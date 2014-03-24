@@ -1,5 +1,7 @@
 #NAME Morph
 
+(; This should be accepted because of the A --> B rule. ;)
+
 A : Type.
 B : Type.
 x : A.
