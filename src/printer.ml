@@ -5,8 +5,8 @@ open Pattern
 (* Try to shorten fully qualified names by dropping the module prefix when
    it is the current scope. *)
 let print_var out x =
-  let (prefix, name) = Scope.unqualify x in
-  if prefix = "" || prefix = !Scope.current_scope
+  let (prefix, name) = Scoping.unqualify x in
+  if prefix = "" || prefix = !Scoping.current_scope
   then fprintf out "%s" name
   else fprintf out "%s" x
 

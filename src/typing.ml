@@ -1,6 +1,6 @@
 open Term
 open Pattern
-open Rule
+open Reduction
 open Printer
 
 let use_coc = ref false
@@ -56,7 +56,7 @@ let check_sort env term =
   | _ -> Error.type_error term.pos "This term has an invalid sort %a " print_term s
 
 let check_declaration pos x a =
-  if is_declared (Scope.qualify x)
+  if is_declared (Scoping.qualify x)
     then Error.type_error pos "Declaration %s is already defined" x else
   check_sort [] a
 

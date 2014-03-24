@@ -1,8 +1,8 @@
 open Term
 open Pattern
-open Rule
+open Reduction
 open Instruction
-open Type
+open Typing
 open Printer
 
 let path = ref ""
@@ -35,9 +35,9 @@ let process_declaration pos x a =
   if !check_current
     then Error.print_verbose 2 "Checking declaration %s..." x
     else Error.print_verbose 2 "Loading declaration %s (no checking)..." x;
-  let a = Scope.qualify_term a [] in
+  let a = Scoping.qualify_term a [] in
   if !check_current then check_declaration pos x a;
-  Hashtbl.add declarations (Scope.qualify x) (normalize a)
+  Hashtbl.add declarations (Scoping.qualify x) (normalize a)
 
 let process_definition pos x a t =
   if !check_current
@@ -45,16 +45,16 @@ let process_definition pos x a t =
     else Error.print_verbose 2 "Loading definition %s (no checking)..." x;
   match a with
   | Some(a) -> 
-      let a = Scope.qualify_term a [] in
-      let t = Scope.qualify_term t [] in
+      let a = Scoping.qualify_term a [] in
+      let t = Scoping.qualify_term t [] in
       if !check_current then check_definition pos x a t;
-      Hashtbl.add declarations (Scope.qualify x) (normalize a);
-      Hashtbl.add rules (Scope.qualify x) ([], [], t)
+      Hashtbl.add declarations (Scoping.qualify x) (normalize a);
+      Hashtbl.add rules (Scoping.qualify x) ([], [], t)
   | None ->
-      let t = Scope.qualify_term t [] in
+      let t = Scoping.qualify_term t [] in
       let a = type_of [] t in
-      Hashtbl.add declarations (Scope.qualify x) a;
-      Hashtbl.add rules (Scope.qualify x) ([], [], t)
+      Hashtbl.add declarations (Scoping.qualify x) a;
+      Hashtbl.add rules (Scoping.qualify x) ([], [], t)
 
 let process_opaque_def pos x a t =
   if !check_current
@@ -62,31 +62,31 @@ let process_opaque_def pos x a t =
     else Error.print_verbose 2 "Loading opaque definition %s (no checking)..." x;
   match a with
   | Some(a) -> 
-      let a = Scope.qualify_term a [] in
-      let t = Scope.qualify_term t [] in
+      let a = Scoping.qualify_term a [] in
+      let t = Scoping.qualify_term t [] in
       if !check_current then check_definition pos x a t;
-      Hashtbl.add declarations (Scope.qualify x) (normalize a)
+      Hashtbl.add declarations (Scoping.qualify x) (normalize a)
   | None ->
-      let t = Scope.qualify_term t [] in
+      let t = Scoping.qualify_term t [] in
       let a = type_of [] t in
-      Hashtbl.add declarations (Scope.qualify x) a
+      Hashtbl.add declarations (Scoping.qualify x) a
 
 let process_rule pos env left right =
   let head, _ = extract_spine left in (* To get the name of the rule *)
   if !check_current
     then Error.print_verbose 2 "Checking rule for %s..." head
     else Error.print_verbose 2 "Loading rule for %s (no checking)..." head;
-  let env, left, right = Scope.qualify_rule env left right in
+  let env, left, right = Scoping.qualify_rule env left right in
   if !check_current then check_rule pos env left right;
   let _, spine = extract_spine left in (* To get the qualified spine *)
-  Hashtbl.add rules (Scope.qualify head) (fst (List.split env), spine, right)
+  Hashtbl.add rules (Scoping.qualify head) (fst (List.split env), spine, right)
 
 let process_rules rules =
   List.iter (fun (pos, env, left, right) -> process_rule pos env left right) rules
 
 let process_normalize t =
   Error.print_verbose 2 "Normalizing %a" print_term t;
-  let t = Scope.qualify_term t [] in
+  let t = Scoping.qualify_term t [] in
   let a = type_of [] t in
   let t = normalize t in
   Error.print_verbose 2 "%a" print_term t
@@ -96,11 +96,11 @@ let rec process_instruction instruction =
     | Name(pos, name) -> ()
     | Import(pos, name) ->
         let backup_check = !check_current in
-        let backup_scope = !Scope.current_scope in
+        let backup_scope = !Scoping.current_scope in
         check_current := !check_dependencies;
         load_module name;
         check_current := backup_check;
-        Scope.current_scope := backup_scope
+        Scoping.current_scope := backup_scope
     | Normalize(pos, t) ->
         process_normalize t
     | Declaration(pos, x, a) ->
@@ -131,7 +131,7 @@ and load_module name =
       if !check_current
         then Error.print_verbose 1 "Loading module %s..." name
         else Error.print_verbose 1 "Loading module %s (no checking)..." name;
-    Scope.current_scope := name;
+    Scoping.current_scope := name;
     let lexbuf = create_lexbuf name in
     process_instructions lexbuf;
     loading_modules := List.tl !loading_modules;
