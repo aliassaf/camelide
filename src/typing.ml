@@ -5,21 +5,32 @@ open Printer
 
 let use_coc = ref false
 
+let axiom pos s =
+  match s with
+  | Type -> Kind
+  | _ ->
+    Error.type_error pos "Cannot type sort %a" print_sort s
+
+let rule pos s1 s2 =
+  match (s1, s2) with
+  | (Type, Type) -> s2
+  | (Type, Kind) ->  s2
+  | (Kind, Type) when !use_coc -> s2
+  | (Kind, Kind) when !use_coc -> s2
+  | _ ->
+    Error.type_error pos "Cannot type (%a, %a) products" print_sort s1 print_sort s2
+
 let product_rule s1 s2 pos =
   let s1 = normalize s1 in
   let s2 = normalize s2 in
   match s1.body, s2.body with
-  | Type, Type -> s2
-  | Type, Kind -> s2
-  | Kind, Type when !use_coc -> s2
-  | Kind, Kind when !use_coc -> s2
+  | Sort s1, Sort s2 -> new_term (Sort (rule pos s1 s2))
   | _ -> Error.type_error pos "This sort of product is not allowed (%a, %a)" print_term s1 print_term s2
 
 (* The type-checking/type-inference algorithm of lambda-Pi-modulo. *)
 let rec type_of env term =
   match term.body with
-  | Type -> term_kind
-  | Kind -> Error.type_error term.pos "Cannot type Kind"
+  | Sort s1 -> new_term (Sort (axiom term.pos s1))
   | Var(x) ->
       begin try List.assoc x env with Not_found ->
       begin try Hashtbl.find declarations x with Not_found ->
@@ -52,7 +63,7 @@ and check_type env term a =
 let check_sort env term =
   let s = normalize (type_of env term) in
   match s.body with
-  | Type | Kind -> ()
+  | Sort _ -> ()
   | _ -> Error.type_error term.pos "This term has an invalid sort %a " print_term s
 
 let check_declaration pos x a =

@@ -23,8 +23,7 @@ let unqualify x =
 let rec qualify_term term bound =
   let body =
     match term.body with
-    | Type -> Type
-    | Kind -> Kind
+    | Sort s -> Sort s
     | Var(x) ->
         if List.mem x bound then Var(x) else
         if is_qualified x then

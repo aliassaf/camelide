@@ -2,6 +2,11 @@ open Printf
 open Term
 open Pattern
 
+let print_sort out s =
+  match s with
+  | Type -> fprintf out "Type"
+  | Kind -> fprintf out "Kind"
+
 (* Try to shorten fully qualified names by dropping the module prefix when
    it is the current scope. *)
 let print_var out x =
@@ -28,8 +33,7 @@ let print_term out term =
     | _ -> print_simple out term
   and print_simple out term =
     match term.body with
-    | Type -> fprintf out "Type"
-    | Kind -> fprintf out "Kind"
+    | Sort(s) -> fprintf out "%a" print_sort s
     | Var(x) -> fprintf out "%a" print_var x
     | _ -> fprintf out "(%a)" print_term term in
   print_term out term

@@ -76,7 +76,7 @@ applicative:
   | applicative simple { term (App($1, $2)) }
 
 simple:
-  | TYPE { term (Type) }
+  | TYPE { term (Sort Type) }
   | qid { term (Var($1)) }
   | LPAREN term RPAREN { $2 }
 

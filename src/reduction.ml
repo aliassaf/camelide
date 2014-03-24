@@ -55,7 +55,7 @@ let match_some_rule head spine =
    stored reduction rules. Evaluation is call-by-value, right-to-left. *)
 let rec reduce term spine =
   match term.body with
-  | Type | Kind -> assert (List.length spine = 0); term, spine
+  | Sort _ -> assert (List.length spine = 0); term, spine
   | Var(x) ->
       begin match match_some_rule x spine with
       | None -> term, spine
@@ -77,8 +77,7 @@ and normalize term =
 let equiv t u =
   let rec equiv t u env =
     match (normalize t).body, (normalize u).body with
-    | Type, Type -> true
-    | Kind, Kind -> true
+    | Sort s1, Sort s2 -> s1 = s2
     | Var(x), Var(y) ->
         begin try List.assoc x env = y
         with Not_found -> x = y && not (List.exists (fun (z, w) -> w = y) env) end

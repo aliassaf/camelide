@@ -1,3 +1,7 @@
+type sort =
+  | Type
+  | Kind
+
 (* Terms are annotated by an additional argument to keep track of their
    location, so that we can print useful error messages. The value flag
    is true when the term has already been evaluated. *)
@@ -7,8 +11,7 @@ type term = {
   value : bool}
 
 and body =
-  | Type
-  | Kind
+  | Sort of sort
   | Var of string
   | App of term * term
   | Lam of string * term * term
@@ -31,8 +34,7 @@ let is_declared x = Hashtbl.mem declarations x
 let free_vars_acc fv term =
   let rec free_vars bound fv term =
     match term.body with
-    | Type -> fv
-    | Kind -> fv
+    | Sort _ -> fv
     | Var(x) ->
         if Hashtbl.mem declarations x || List.mem x bound || List.mem x fv
         then fv else x :: fv
@@ -58,8 +60,7 @@ let variant x avoid =
 let subst theta term =
   let rec subst theta term =
     match term.body with
-    | Type -> term
-    | Kind -> term
+    | Sort _ -> term
     | Var(x) ->
         begin try List.assoc x theta
         with Not_found -> term end
@@ -80,8 +81,7 @@ let subst theta term =
 let alpha_equiv t u =
   let rec alpha_equiv t u env =
     match t.body, u.body with
-    | Type, Type -> true
-    | Kind, Kind -> true
+    | Sort s1, Sort s2 -> s1 = s2
     | Var(x), Var(y) ->
         begin try List.assoc x env = y
         with Not_found -> x = y && not (List.exists (fun (z, w) -> w = y) env) end
@@ -94,6 +94,7 @@ let alpha_equiv t u =
     | _ -> false in
   alpha_equiv t u []
 
-let term_type = new_term Type
+let term_type = new_term (Sort Type)
 
-let term_kind = new_term Kind
+let term_kind = new_term (Sort Kind)
+
