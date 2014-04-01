@@ -1,6 +1,8 @@
 open Term
 open Pattern
 
+exception ImportModule of string
+
 (* Keeping track of the current scope name as modules are loaded. *)
 let current_scope = ref ""
 
@@ -28,7 +30,8 @@ let rec qualify_term term bound =
         if List.mem x bound then Var(x) else
         if is_qualified x then
           if is_declared x then Var(x) else
-          Error.scoping_error term.pos "undeclared variable %s" x else
+          let (y, _) = unqualify x in
+          raise (ImportModule(y)) else
         let qx = qualify x in
         if is_declared qx then Var(qx) else
         Error.scoping_error term.pos "unbound variable %s" x

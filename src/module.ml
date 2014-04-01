@@ -92,15 +92,11 @@ let process_normalize t =
   Error.print_verbose 2 "%a" print_term t
 
 let rec process_instruction instruction =
-  match instruction with
+  try
+    match instruction with
     | Name(pos, name) -> ()
     | Import(pos, name) ->
-        let backup_check = !check_current in
-        let backup_scope = !Scoping.current_scope in
-        check_current := !check_dependencies;
-        load_module name;
-        check_current := backup_check;
-        Scoping.current_scope := backup_scope
+        import_module name
     | Normalize(pos, t) ->
         process_normalize t
     | Declaration(pos, x, a) ->
@@ -112,6 +108,10 @@ let rec process_instruction instruction =
     | Rules(rules) ->
         process_rules rules
     | Eof -> ()
+  with
+  | Scoping.ImportModule(name) ->
+    import_module name;
+    process_instruction instruction
 
 and process_instructions lexbuf =
   let instruction = Parser.instruction Lexer.token lexbuf in
@@ -120,6 +120,14 @@ and process_instructions lexbuf =
   | _ ->
       process_instruction instruction;
       process_instructions lexbuf
+
+and import_module name =
+  let backup_check = !check_current in
+  let backup_scope = !Scoping.current_scope in
+  check_current := !check_dependencies;
+  load_module name;
+  check_current := backup_check;
+  Scoping.current_scope := backup_scope
 
 (* Modules are loaded, parsed, and executed on the fly, as needed. *)
 and load_module name =
