@@ -87,7 +87,7 @@ let process_rules rules =
 let process_normalize t =
   Error.print_verbose 2 "Normalizing %a" print_term t;
   let t = Scoping.qualify_term t [] in
-  let a = type_of [] t in
+  let _ = type_of [] t in
   let t = normalize t in
   Error.print_verbose 2 "%a" print_term t
 
