@@ -23,9 +23,9 @@ qid:
   | ID { $1 }
 
 instruction:
-  | NAME ID { Name(pos (), $2) }
-  | IMPORT ID { Import(pos (), $2) }
-  | NORMALIZE term { Normalize(pos (), $2) }
+  | NAME ID DOT { Name(pos (), $2) }
+  | IMPORT ID DOT { Import(pos (), $2) }
+  | NORMALIZE term DOT { Normalize(pos (), $2) }
   | declaration { $1 }
   | definition { $1 }
   | opaque_def { $1 }
